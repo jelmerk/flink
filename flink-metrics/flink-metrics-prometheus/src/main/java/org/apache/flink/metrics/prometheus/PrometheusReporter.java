@@ -51,6 +51,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * {@link MetricReporter} that exports {@link Metric Metrics} via Prometheus.
@@ -150,6 +151,15 @@ public class PrometheusReporter implements MetricReporter {
 					LOG.warn("There was a problem registering metric {}.", metricName, e);
 				}
 			}
+
+			LOG.info("Metric added with metricName {} and scopedMetricName {} and metricGroup scope components {} and metric group variables {}. Count is {}",
+				metricName,
+				scopedMetricName,
+				Arrays.stream(group.getScopeComponents()).collect(Collectors.joining(",")),
+				group.getAllVariables(),
+				count
+			);
+
 			addMetric(metric, dimensionValues, collector);
 			collectorsWithCountByMetricName.put(scopedMetricName, new AbstractMap.SimpleImmutableEntry<>(collector, count + 1));
 		}
@@ -210,6 +220,14 @@ public class PrometheusReporter implements MetricReporter {
 			} else {
 				collectorsWithCountByMetricName.put(scopedMetricName, new AbstractMap.SimpleImmutableEntry<>(collector, count - 1));
 			}
+
+			LOG.info("Metric removed with metricName {} and scopedMetricName {} and metricGroup scope components {} and metric group variables {}. Count is {}",
+				metricName,
+				scopedMetricName,
+				Arrays.stream(group.getScopeComponents()).collect(Collectors.joining(",")),
+				group.getAllVariables(),
+				count
+			);
 		}
 	}
 
